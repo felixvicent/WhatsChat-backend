@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Adonis API application
 
 This is the boilerplate for creating an API server in AdonisJs, it comes pre-configured with.
@@ -26,3 +27,6 @@ Run the following command to run startup migrations.
 ```js
 adonis migration:run
 ```
+=======
+# WhatsChat-backend
+>>>>>>> 8a34569900006605a47b72bf23ed9ec5875f9131
