@@ -1,15 +1,19 @@
 'use strict'
 
+/** @typedef {typeof import('@adonisjs/lucid/src/Lucid/Model')} Model */
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
+
+/** @type { Model } */
+const ChatMessage = use('App/Models/ChatMessage');
 
 /**
  * Resourceful controller for interacting with chatmessages
  */
 class ChatMessageController {
   /**
-   * Show a list of all chatmessages.
+   * Show a list of all messages of a room.
    * GET chatmessages
    *
    * @param {object} ctx
@@ -17,19 +21,12 @@ class ChatMessageController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
+  async index ({ request, response, view, params }) {
+    const room_id = Number(params.room_id);
 
-  /**
-   * Render a form to be used for creating a new chatmessage.
-   * GET chatmessages/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+    const chatMessages = await ChatMessage.query().where('room_id', room_id).fetch();
+
+    return chatMessages
   }
 
   /**
@@ -40,53 +37,19 @@ class ChatMessageController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
-  }
+  async store ({ request, auth }) {
+    const user_id = Number(auth.user.id);
+    const { target_user_id, room_id, text } = request.only(['target_user_id', 'room_id', 'text']);
 
-  /**
-   * Display a single chatmessage.
-   * GET chatmessages/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
+    const chatMessage = await ChatMessage.create({
+      room_id,
+      request_user_id: user_id,
+      target_user_id,
+      text,
+      viewed: false,
+    });
 
-  /**
-   * Render a form to update an existing chatmessage.
-   * GET chatmessages/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
-   * Update chatmessage details.
-   * PUT or PATCH chatmessages/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
-
-  /**
-   * Delete a chatmessage with id.
-   * DELETE chatmessages/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    return chatMessage;
   }
 }
 

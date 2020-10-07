@@ -26,4 +26,7 @@ Route.post('/sessions', 'SessionController.store').validator('Session/Store');
 Route.group(() => {
   Route.get('/chat_rooms', 'ChatRoomController.index');
   Route.post('/chat_rooms', 'ChatRoomController.store').validator('ChatRoom/Store');
+
+  Route.get('/chat_messages/:room_id', 'ChatMessageController.index');
+  Route.post('/chat_messages', 'ChatMessageController.store').validator('ChatMessage/Store');
 }).middleware(['auth']);
