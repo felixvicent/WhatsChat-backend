@@ -1,15 +1,19 @@
 'use strict'
 
+/** @typedef {typeof import('@adonisjs/lucid/src/Lucid/Model')} Model */
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
+
+/** @type { Model } */
+const ChatRoom = use('App/Models/ChatRoom');
 
 /**
  * Resourceful controller for interacting with chatrooms
  */
 class ChatRoomController {
   /**
-   * Show a list of all chatrooms.
+   * Show a list of user.
    * GET chatrooms
    *
    * @param {object} ctx
@@ -17,19 +21,16 @@ class ChatRoomController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
+  async index ({ auth }) {
+    const user_id = Number(auth.user.id);
 
-  /**
-   * Render a form to be used for creating a new chatroom.
-   * GET chatrooms/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+    const chatRooms = await ChatRoom
+      .query()
+      .where('request_user_id', user_id)
+      .orWhere('target_user_id', user_id)
+      .fetch();
+
+    return chatRooms;    
   }
 
   /**
@@ -40,53 +41,17 @@ class ChatRoomController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
-  }
+  async store ({ request, auth }) {
+    const user_id = Number(auth.user.id);
 
-  /**
-   * Display a single chatroom.
-   * GET chatrooms/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
+    const { target_user_id } = request.only(['target_user_id']);
 
-  /**
-   * Render a form to update an existing chatroom.
-   * GET chatrooms/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+    const chatRoom = await ChatRoom.create({
+      request_user_id: user_id,
+      target_user_id,
+    });
 
-  /**
-   * Update chatroom details.
-   * PUT or PATCH chatrooms/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
-
-  /**
-   * Delete a chatroom with id.
-   * DELETE chatrooms/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    return chatRoom;
   }
 }
 
